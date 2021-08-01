@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: user-settings-service-persistence
+
+logging:
+  config: classpath:log4j2-json-console.xml
+---
+spring:
+  cloud:
+    kubernetes:
+      config:
+        enabled: true
+        paths: /app/config/config.yaml
+        enable-api: false
+      secrets:
+        paths: /app/secrets
+---
+spring:
+  profiles: local
+  cloud:
+    kubernetes:
+      config:
+        enabled: false
+
+logging:
+  config: ''

@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}-deployment
+  labels:
+    app: {{.Values.name}}
+    version: {{ .Values.version }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Values.name}}
+      version: {{ .Values.version }}
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{.Values.name}}
+        version: {{ .Values.version }}
+      annotations:
+        traffic.sidecar.istio.io/excludeOutboundPorts: '5432'
+    spec:
+      serviceAccountName: {{.Values.name }}
+      containers:
+        - name: {{.Values.name }}
+          image: "{{ .Values.image.name }}:{{ .Values.image.version }}"
+          ports:
+          - containerPort: {{ .Values.port }}
+            protocol: TCP
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 500Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.liveness.path }}
+              port: {{ .Values.port }}
+            failureThreshold: 1
+            initialDelaySeconds: 180
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.path }}
+              port: {{ .Values.port }}
+            failureThreshold: 5
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 5
+          volumeMounts:
+            - mountPath: /app/config/config.yaml
+              name: config
+              readOnly: true
+              subPath: config.yaml
+            - mountPath: /app/secrets
+              name: db-credentials
+              readOnly: true
+          env:
+            - name: KAFKA_BROKER
+              value: {{ .Values.kafka.service }}
+            - name: DB_URL
+              value: {{ .Values.db.url }}
+            - name: DB_NAME
+              value: {{ .Values.db.name }}
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secret }}
+                  key: settRoleName
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secret }}
+                  key: settRolePass
+            - name: KEYCLOAK_URL
+              value: {{ .Values.keycloak.url }}
+            - name: KEYCLOAK_REALM
+              value: {{ .Values.ciProject }}-officer-portal
+      initContainers:
+        - name: init
+          image: {{ .Values.dockerProxyRegistry }}/busybox
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c"]
+          args: ["while ! nc -w 1 {{ .Values.db.url }} {{ .Values.db.port }} </dev/null; do echo waiting for database; sleep 10; done;"]
+        - name: create-db
+          image: {{ .Values.dockerProxyRegistry }}/bitnami/postgresql:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secret }}
+                  key: settRoleName
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.db.secret }}
+                  key: settRolePass
+          command: ["sh", "-c"]
+          args: ["psql postgres -U $PSQL_USER --host={{ .Values.db.url }} -f /etc/create-db.sql"]
+          volumeMounts:
+            - mountPath: /etc/create-db.sql
+              name: create-db
+              readOnly: true
+              subPath: create-db.sql
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: create-db
+          configMap:
+            name: create-db
+        - name: config
+          configMap:
+            name: user-settings-service-persistence-properties
+        - name: db-credentials
+          secret:
+            secretName: {{ .Values.db.secret }}
+            items:
+              - key: settRolePass
+                path: data-platform.datasource.password
+              - key: settRoleName
+                path: data-platform.datasource.username

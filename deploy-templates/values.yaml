@@ -1,0 +1,44 @@
+name: user-settings-service-persistence
+
+version: 1.1.0
+
+port: 8080
+
+image:
+  name: user-settings-service-persistence
+  version: latest
+  lbExtension: nexus-docker-hosted.apps.cicd2.mdtu-ddm.projects.epam.com/mdtu-ddm-edp-cicd/data-model-master:1.1.1-SNAPSHOT.2
+
+service:
+  port: 8080
+
+kafka:
+  service: kafka-cluster-kafka-bootstrap:9092
+
+db:
+  url: citus-master
+  secret: citus-roles-secrets
+  name: settings
+  port: 5432
+  connectionTimeout: 4000
+
+keycloak:
+  url: https://platform-keycloak.apps.external.mdtu-ddm.projects.epam.com
+
+monitoring:
+  namespace: openshift-monitoring
+  prometheusScrapePath: /actuator/prometheus
+  jobLabel: app
+
+probes:
+  liveness:
+    path: /actuator/health/liveness
+  readiness:
+    path: /actuator/health/readiness
+
+audit:
+  kafka:
+    topic: audit-events
+    schemaRegistryUrl: http://kafka-schema-registry:8081
+
+dockerProxyRegistry: nexus-docker-registry.apps.cicd2.mdtu-ddm.projects.epam.com

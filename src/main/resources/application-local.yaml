@@ -1,0 +1,34 @@
+spring:
+  zipkin:
+    enabled: false
+
+server:
+  port: 8002
+
+data-platform:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/settings
+    username: postgres
+    password: qwerty
+  kafka:
+    bootstrap: ${KAFKA_BROKER:localhost:9092}
+  jwt:
+    validation:
+      enabled: false
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+# Not use for real token validation, just example
+keycloak:
+  url: https://keycloak-edp-security.apps.cicd.mdtu-ddm.projects.epam.com
+  realm: kep-test
+
+audit:
+  kafka:
+    bootstrap: localhost:9092
+    topic: audit-events
+    schema-registry-url: http://localhost:8081

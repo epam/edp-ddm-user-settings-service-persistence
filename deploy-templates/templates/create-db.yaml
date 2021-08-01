@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: create-db
+data:
+  create-db.sql:
+{{ (.Files.Glob "create-db.sql").AsConfig | indent 2 }}
