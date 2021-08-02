@@ -101,22 +101,12 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.db.secret }}
                   key: settRolePass
-          command: ["sh", "-c"]
-          args: ["psql postgres -U $PSQL_USER --host={{ .Values.db.url }} -f /etc/create-db.sql"]
-          volumeMounts:
-            - mountPath: /etc/create-db.sql
-              name: create-db
-              readOnly: true
-              subPath: create-db.sql
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
-        - name: create-db
-          configMap:
-            name: create-db
         - name: config
           configMap:
             name: user-settings-service-persistence-properties
