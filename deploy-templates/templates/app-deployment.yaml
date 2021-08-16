@@ -19,6 +19,7 @@ spec:
         app: {{.Values.name}}
         version: {{ .Values.version }}
       annotations:
+        sidecar.istio.io/inject: "true"
         traffic.sidecar.istio.io/excludeOutboundPorts: '5432'
     spec:
       serviceAccountName: {{.Values.name }}
