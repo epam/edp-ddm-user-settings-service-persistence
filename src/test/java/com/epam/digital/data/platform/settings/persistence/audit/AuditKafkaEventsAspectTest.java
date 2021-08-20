@@ -1,9 +1,10 @@
-package com.epam.digital.data.platform.settings.persistence.aspect;
+package com.epam.digital.data.platform.settings.persistence.audit;
 
 import com.epam.digital.data.platform.model.core.kafka.Request;
+import com.epam.digital.data.platform.settings.persistence.audit.AuditKafkaEventsAspect;
 import com.epam.digital.data.platform.settings.persistence.listener.SettingsListener;
 import com.epam.digital.data.platform.settings.persistence.service.JwtValidationService;
-import com.epam.digital.data.platform.settings.persistence.service.KafkaEventsFacade;
+import com.epam.digital.data.platform.settings.persistence.audit.KafkaEventsFacade;
 import com.epam.digital.data.platform.settings.persistence.service.SettingsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

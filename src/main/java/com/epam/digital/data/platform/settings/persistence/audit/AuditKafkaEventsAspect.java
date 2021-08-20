@@ -1,9 +1,9 @@
-package com.epam.digital.data.platform.settings.persistence.aspect;
+package com.epam.digital.data.platform.settings.persistence.audit;
 
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.Response;
 import com.epam.digital.data.platform.model.core.kafka.Status;
-import com.epam.digital.data.platform.settings.persistence.service.KafkaEventsFacade;
+import com.epam.digital.data.platform.settings.persistence.aspect.KafkaGenericListenerAspect;
 import com.epam.digital.data.platform.starter.audit.model.EventType;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

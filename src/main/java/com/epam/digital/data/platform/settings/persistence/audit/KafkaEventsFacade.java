@@ -1,10 +1,14 @@
-package com.epam.digital.data.platform.settings.persistence.service;
+package com.epam.digital.data.platform.settings.persistence.audit;
 
 import com.epam.digital.data.platform.model.core.kafka.Request;
+import com.epam.digital.data.platform.settings.persistence.service.JwtInfoProvider;
+import com.epam.digital.data.platform.settings.persistence.service.TraceService;
+import com.epam.digital.data.platform.starter.audit.model.AuditUserInfo;
 import com.epam.digital.data.platform.starter.audit.model.EventType;
 import com.epam.digital.data.platform.starter.audit.service.AbstractAuditFacade;
 import com.epam.digital.data.platform.starter.audit.service.AuditService;
 import java.time.Clock;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,17 +21,18 @@ public class KafkaEventsFacade extends AbstractAuditFacade {
   private final JwtInfoProvider jwtInfoProvider;
 
   public KafkaEventsFacade(
-      @Value("${spring.application.name:user-settings-service-persistence}") String appName,
       AuditService auditService,
+      @Value("${spring.application.name:user-settings-service-persistence}") String appName,
+      Clock clock,
       TraceService traceService,
-      Clock clock, JwtInfoProvider jwtInfoProvider) {
-    super(appName, auditService, clock);
+      JwtInfoProvider jwtInfoProvider) {
+    super(auditService, appName, clock);
     this.traceService = traceService;
     this.jwtInfoProvider = jwtInfoProvider;
   }
 
   public void sendKafkaAudit(EventType eventType, String methodName, Request<?> request,
-      String action, String step, String result) {
+                             String action, String step, String result) {
     var event = createBaseAuditEvent(
         eventType, KAFKA_REQUEST + methodName, traceService.getRequestId());
 
@@ -42,7 +47,12 @@ public class KafkaEventsFacade extends AbstractAuditFacade {
     String jwt = request.getSecurityContext().getAccessToken();
     if (jwt != null) {
       var userClaims = jwtInfoProvider.getUserClaims(request);
-      event.setUserInfo(userClaims.getDrfo(), userClaims.getFullName());
+      var userInfo = AuditUserInfo.AuditUserInfoBuilder.anAuditUserInfo()
+              .userName(userClaims.getFullName())
+              .userKeycloakId(userClaims.getSubject())
+              .userDrfo(userClaims.getDrfo())
+              .build();
+      event.setUserInfo(userInfo);
     }
   }
 }
