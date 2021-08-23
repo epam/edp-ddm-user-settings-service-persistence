@@ -88,20 +88,6 @@ spec:
           imagePullPolicy: IfNotPresent
           command: ["sh", "-c"]
           args: ["while ! nc -w 1 {{ .Values.db.url }} {{ .Values.db.port }} </dev/null; do echo waiting for database; sleep 10; done;"]
-        - name: create-db
-          image: {{ .Values.dockerProxyRegistry }}/bitnami/postgresql:latest
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: PSQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.db.secret }}
-                  key: settRoleName
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.db.secret }}
-                  key: settRolePass
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
