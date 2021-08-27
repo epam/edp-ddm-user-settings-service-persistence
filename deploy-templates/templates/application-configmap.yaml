@@ -10,6 +10,8 @@ data:
         connection-timeout: {{.Values.db.connectionTimeout}}
       kafka:
         bootstrap: {{ .Values.kafka.service }}
+        ssl:
+          enabled: {{ .Values.kafka.sslEnabled }}
 
     keycloak:
       url: {{ .Values.keycloak.url }}

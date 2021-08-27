@@ -12,6 +12,8 @@ data-platform:
     password: qwerty
   kafka:
     bootstrap: ${KAFKA_BROKER:localhost:9092}
+    ssl:
+      enabled: false
   jwt:
     validation:
       enabled: false

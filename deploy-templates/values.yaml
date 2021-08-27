@@ -14,6 +14,7 @@ service:
 
 kafka:
   service: kafka-cluster-kafka-bootstrap:9092
+  sslEnabled: false
 
 db:
   url: citus-master
