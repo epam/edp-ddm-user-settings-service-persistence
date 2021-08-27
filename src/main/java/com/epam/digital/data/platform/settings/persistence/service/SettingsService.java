@@ -6,12 +6,15 @@ import com.epam.digital.data.platform.settings.model.dto.SettingsUpdateInputDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsUpdateOutputDto;
 import com.epam.digital.data.platform.settings.persistence.model.Settings;
 import com.epam.digital.data.platform.settings.persistence.repository.SettingsRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 public class SettingsService {
+
+  private final Logger log = LoggerFactory.getLogger(SettingsService.class);
 
   private final SettingsRepository settingsRepository;
   private final JwtInfoProvider jwtInfoProvider;
@@ -35,7 +38,10 @@ public class SettingsService {
               settingsReadDto.setCommunicationAllowed(settings.isCommunicationAllowed());
               return settingsReadDto;
             })
-        .orElse(new SettingsReadDto());
+        .orElseGet(() -> {
+          log.info("Settings not found in DB, returning empty ones");
+          return new SettingsReadDto();
+        });
   }
 
   public SettingsUpdateOutputDto updateSettings(Request<SettingsUpdateInputDto> input) {
@@ -44,14 +50,18 @@ public class SettingsService {
     var inputPayload = input.getPayload();
 
     var settings =
-        settingsRepository.findByKeycloakId(UUID.fromString(userKeycloakId)).orElse(new Settings());
+        settingsRepository.findByKeycloakId(UUID.fromString(userKeycloakId))
+            .orElseGet(() -> {
+              log.info("Settings not found in DB, creating empty ones");
+              return new Settings();
+            });
     settings.setKeycloakId(UUID.fromString(userKeycloakId));
     settings.setEmail(inputPayload.getEmail());
     settings.setPhone(inputPayload.getPhone());
     settings.setCommunicationAllowed(inputPayload.isCommunicationAllowed());
 
-    Settings upsertedSettings = settingsRepository.save(settings);
+    Settings savedSettings = settingsRepository.save(settings);
 
-    return new SettingsUpdateOutputDto(upsertedSettings.getSettingsId());
+    return new SettingsUpdateOutputDto(savedSettings.getSettingsId());
   }
 }

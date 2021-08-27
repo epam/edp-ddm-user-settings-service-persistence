@@ -51,7 +51,7 @@ public class JwtValidationService {
       throw new JwtExpiredException("JWT is expired");
     }
     PublicKey keycloakPublicKey = getPublicKeyFromKeycloak();
-    return isVerifiedToken(accessToken, keycloakPublicKey);
+    return isValidToken(accessToken, keycloakPublicKey);
   }
 
   private JWTClaimsSet getClaimsFromToken(String accessToken) {
@@ -78,6 +78,7 @@ public class JwtValidationService {
 
   private PublicKey getPublicKeyFromKeycloak() {
     try {
+      log.info("Retrieving Realm from Keycloak");
       PublishedRealmRepresentation realmRepresentation = keycloakRestClient
           .getRealmRepresentation();
       return realmRepresentation.getPublicKey();
@@ -87,7 +88,7 @@ public class JwtValidationService {
     }
   }
 
-  private boolean isVerifiedToken(String accessToken, PublicKey publicKey) {
+  private boolean isValidToken(String accessToken, PublicKey publicKey) {
     try {
       TokenVerifier.create(accessToken, JsonWebToken.class)
           .publicKey(publicKey)

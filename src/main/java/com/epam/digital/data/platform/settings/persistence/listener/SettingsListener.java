@@ -40,6 +40,8 @@ public class SettingsListener implements ReadListener<SettingsReadDto, Void>,
       containerFactory = "concurrentKafkaListenerContainerFactory")
   @SendTo
   public Response<SettingsReadDto> read(Request<Void> input) {
+    log.info("Read event received");
+
     var response = new Response<SettingsReadDto>();
 
     try {
@@ -67,7 +69,10 @@ public class SettingsListener implements ReadListener<SettingsReadDto, Void>,
       containerFactory = "concurrentKafkaListenerContainerFactory")
   @SendTo
   public Response<SettingsUpdateOutputDto> update(Request<SettingsUpdateInputDto> input) {
+    log.info("Update event received");
+
     var response = new Response<SettingsUpdateOutputDto>();
+
     try {
       if (!jwtValidationService.isValid(input)) {
         response.setStatus(Status.JWT_INVALID);
