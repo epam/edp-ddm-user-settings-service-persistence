@@ -17,7 +17,7 @@ data:
           enabled: true
 
     keycloak:
-      url: {{ .Values.keycloak.host }}
+      url: https://{{ .Values.keycloak.host }}
       realms:
         - {{ .Values.namespace }}-officer-portal
         - {{ .Values.namespace }}-citizen-portal
