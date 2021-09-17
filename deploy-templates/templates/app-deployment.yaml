@@ -82,10 +82,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.db.secret }}
                   key: settRolePass
-            - name: KEYCLOAK_URL
-              value: {{ .Values.keycloak.url }}
-            - name: KEYCLOAK_REALM
-              value: {{ .Values.ciProject }}-officer-portal
       initContainers:
         - name: init
           image: {{ .Values.dockerProxyRegistry }}/busybox

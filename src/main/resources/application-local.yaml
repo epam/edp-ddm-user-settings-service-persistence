@@ -26,8 +26,9 @@ management:
 
 # Not use for real token validation, just example
 keycloak:
-  url: https://keycloak-edp-security.apps.cicd.mdtu-ddm.projects.epam.com
-  realm: kep-test
+  url: https://platform-keycloak.apps.cicd2.mdtu-ddm.projects.epam.com
+  realms:
+    - realm
 
 audit:
   kafka:

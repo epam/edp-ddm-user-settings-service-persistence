@@ -43,14 +43,7 @@ probes:
   liveness:
     failureThreshold: 10
 
-keycloak:
-  url: ${KEYCLOAK_URL}
-  realm: ${KEYCLOAK_REALM}
-
 data-platform:
-  jwt:
-    validation:
-      enabled: false
   kafka:
     group-id: user-settings-service-persistence
     trusted-packages:

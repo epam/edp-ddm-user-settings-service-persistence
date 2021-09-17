@@ -12,10 +12,15 @@ data:
         bootstrap: {{ .Values.kafka.service }}
         ssl:
           enabled: {{ .Values.kafka.sslEnabled }}
+      jwt:
+        validation:
+          enabled: true
 
     keycloak:
-      url: {{ .Values.keycloak.url }}
-      realm: {{ .Values.ciProject }}-officer-portal
+      url: {{ .Values.keycloak.host }}
+      realms:
+        - {{ .Values.ciProject }}-officer-portal
+        - {{ .Values.ciProject }}-citizen-portal
 
     audit:
       kafka:

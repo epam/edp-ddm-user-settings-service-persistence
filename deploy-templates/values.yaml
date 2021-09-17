@@ -23,9 +23,6 @@ db:
   port: 5432
   connectionTimeout: 4000
 
-keycloak:
-  url: https://platform-keycloak.apps.external.mdtu-ddm.projects.epam.com
-
 monitoring:
   namespace: openshift-monitoring
   prometheusScrapePath: /actuator/prometheus
