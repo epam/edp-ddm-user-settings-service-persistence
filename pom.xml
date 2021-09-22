@@ -25,6 +25,9 @@
     <spring.boot.version>2.3.5.RELEASE</spring.boot.version>
     <jackson.core.version>2.12.0</jackson.core.version>
     <keycloak.core.version>12.0.3</keycloak.core.version>
+    <sonar.coverage.exclusions>
+      **/config/**/*
+    </sonar.coverage.exclusions>
   </properties>
 
   <dependencyManagement>
