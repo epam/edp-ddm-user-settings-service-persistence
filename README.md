@@ -5,7 +5,7 @@
 This service interacts with the database of system users account settings (email, phone etc.).
 
 ### Related components:
-* [user-settings-service-api](https://gitbud.epam.com/mdtu-ddm/data-architecture/application/user-settings-service-api) - service, which interacts with web clients via HTTP, usually starts before this application
+* user-settings-service-api - service, which interacts with web clients via HTTP, usually starts before this application
 * Kafka for message exchanging with user-settings-service-api
 * PostgreSQL database for data persistence
 
@@ -17,7 +17,7 @@ This service interacts with the database of system users account settings (email
 
 ###### Settings database setup:
 1. Create database `settings`
-1. Run setup [script](https://gitbud.epam.com/mdtu-ddm/data-architecture/devops-application/citus/-/blob/master/platform-db/changesets/settings/00010_initial-db-setup.sql)
+1. Run `initial-db-setup` script from the `citus` repository
 
 ###### Steps:
 
