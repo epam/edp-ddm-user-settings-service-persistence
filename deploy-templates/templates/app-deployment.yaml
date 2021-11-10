@@ -88,7 +88,7 @@ spec:
                   key: settRolePass
       initContainers:
         - name: init
-          image: {{ .Values.dockerProxyRegistry }}/busybox
+          image: {{ template "imageRegistry" . -}} busybox
           imagePullPolicy: IfNotPresent
           command: ["sh", "-c"]
           args: ["while ! nc -w 1 {{ .Values.db.url }} {{ .Values.db.port }} </dev/null; do echo waiting for database; sleep 10; done;"]
