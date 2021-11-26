@@ -28,3 +28,6 @@ This service interacts with the database of system users account settings (email
 
 ###### Additional information
 All properties, related to other third-party services, not mentioned above (dso, keycloak, ceph) are mocked in `application-local.yaml` (like keycloak.realm=realm), to check such integrations, mock values must be replaced with real ones.
+
+### License
+user-settings-service-persistence is Open Source software released under the Apache 2.0 license.
