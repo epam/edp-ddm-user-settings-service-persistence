@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package com.epam.digital.data.platform.settings.persistence.aspect;
+package com.epam.digital.data.platform.settings.persistence.audit;
 
-import org.aspectj.lang.annotation.Pointcut;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface KafkaGenericListenerAspect {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface AuditableListener {
 
-  @Pointcut(
-      "execution(public * com.epam.digital.data.platform.settings.persistence.listener.operation.ReadListener.read(..))")
-  default void kafkaRead() {}
+  Operation value();
 
-  @Pointcut(
-      "execution(public * com.epam.digital.data.platform.settings.persistence.listener.operation.UpdateListener.update(..))")
-  default void kafkaUpdate() {}
+  enum Operation {
+    READ, UPDATE
+  }
 }

@@ -16,11 +16,16 @@
 
 package com.epam.digital.data.platform.settings.persistence.audit;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.epam.digital.data.platform.model.core.kafka.Request;
-import com.epam.digital.data.platform.settings.persistence.audit.AuditKafkaEventsAspect;
+import com.epam.digital.data.platform.settings.persistence.aspect.AuditAspect;
 import com.epam.digital.data.platform.settings.persistence.listener.SettingsListener;
 import com.epam.digital.data.platform.settings.persistence.service.JwtValidationService;
-import com.epam.digital.data.platform.settings.persistence.audit.KafkaEventsFacade;
 import com.epam.digital.data.platform.settings.persistence.service.SettingsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,26 +34,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @Import({AopAutoConfiguration.class})
 @SpringBootTest(
     classes = {
-      AuditKafkaEventsAspect.class,
-      SettingsListener.class,
+        AuditAspect.class,
+        KafkaAuditProcessor.class,
+        SettingsListener.class,
     })
+@MockBean(SettingsService.class)
 class AuditKafkaEventsAspectTest {
 
   @Autowired
   private SettingsListener settingsListener;
+  
   @MockBean
   private JwtValidationService jwtValidationService;
-  @MockBean
-  private SettingsService settingsService;
   @MockBean
   private KafkaEventsFacade kafkaEventsFacade;
 

@@ -22,6 +22,8 @@ import com.epam.digital.data.platform.model.core.kafka.Status;
 import com.epam.digital.data.platform.settings.model.dto.SettingsReadDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsUpdateInputDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsUpdateOutputDto;
+import com.epam.digital.data.platform.settings.persistence.audit.AuditableListener;
+import com.epam.digital.data.platform.settings.persistence.audit.AuditableListener.Operation;
 import com.epam.digital.data.platform.settings.persistence.exception.RequestProcessingException;
 import com.epam.digital.data.platform.settings.persistence.listener.operation.ReadListener;
 import com.epam.digital.data.platform.settings.persistence.listener.operation.UpdateListener;
@@ -35,7 +37,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SettingsListener implements ReadListener<SettingsReadDto, Void>,
-        UpdateListener<SettingsUpdateOutputDto, SettingsUpdateInputDto> {
+    UpdateListener<SettingsUpdateOutputDto, SettingsUpdateInputDto> {
 
   private final Logger log = LoggerFactory.getLogger(SettingsListener.class);
 
@@ -49,6 +51,7 @@ public class SettingsListener implements ReadListener<SettingsReadDto, Void>,
     this.jwtValidationService = jwtValidationService;
   }
 
+  @AuditableListener(Operation.READ)
   @Override
   @KafkaListener(
       topics = "\u0023{kafkaProperties.topics['read-settings']}",
@@ -78,6 +81,7 @@ public class SettingsListener implements ReadListener<SettingsReadDto, Void>,
     return response;
   }
 
+  @AuditableListener(Operation.UPDATE)
   @Override
   @KafkaListener(
       topics = "\u0023{kafkaProperties.topics['update-settings']}",
