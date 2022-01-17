@@ -33,18 +33,6 @@ public class RequestProcessingException extends RuntimeException {
     this.kafkaResponseStatus = kafkaResponseStatus;
   }
 
-  public RequestProcessingException(String message, Status kafkaResponseStatus, String details) {
-    super(message);
-    this.kafkaResponseStatus = kafkaResponseStatus;
-    this.details = details;
-  }
-
-  public RequestProcessingException(String message, Throwable cause, Status kafkaResponseStatus, String details) {
-    super(message, cause);
-    this.kafkaResponseStatus = kafkaResponseStatus;
-    this.details = details;
-  }
-
   public Status getKafkaResponseStatus() {
     return kafkaResponseStatus;
   }
