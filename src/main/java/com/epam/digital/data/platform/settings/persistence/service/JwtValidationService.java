@@ -68,13 +68,7 @@ public class JwtValidationService {
 
   @PostConstruct
   void postConstruct() {
-    if (jwtValidationEnabled) {
-      allowedRealmsRepresentations =
-              keycloakConfigProperties.getRealms().stream()
-                      .collect(
-                              Collectors.toMap(
-                                      Function.identity(), keycloakRestClient::getRealmRepresentation));
-    }
+    refreshAllowedRealmsRepresentations();
   }
 
   public <O> boolean isValid(Request<O> input) {
@@ -91,7 +85,7 @@ public class JwtValidationService {
 
     if (keycloakConfigProperties.getRealms().contains(issuerRealm)) {
       PublicKey keycloakPublicKey = allowedRealmsRepresentations.get(issuerRealm).getPublicKey();
-      return isVerifiedToken(accessToken, keycloakPublicKey);
+      return retryableIsVerifiedToken(accessToken, keycloakPublicKey);
     } else {
       throw new JwtValidationException("Issuer realm is not valid");
     }
@@ -119,6 +113,15 @@ public class JwtValidationService {
         .orElse(true);
   }
 
+  private boolean retryableIsVerifiedToken(String accessToken, PublicKey keycloakPublicKey) {
+    if(isVerifiedToken(accessToken, keycloakPublicKey)) {
+      return true;
+    }
+    log.info("Update realm information and retry validate token");
+    refreshAllowedRealmsRepresentations();
+    return isVerifiedToken(accessToken, keycloakPublicKey);
+  }
+  
   private boolean isVerifiedToken(String accessToken, PublicKey publicKey) {
     try {
       TokenVerifier.create(accessToken, JsonWebToken.class).publicKey(publicKey).verify();
@@ -126,6 +129,16 @@ public class JwtValidationService {
     } catch (VerificationException e) {
       log.error("JWT token is not valid", e);
       return false;
+    }
+  }
+  
+  private void refreshAllowedRealmsRepresentations() {
+    if (jwtValidationEnabled) {
+      allowedRealmsRepresentations =
+          keycloakConfigProperties.getRealms().stream()
+              .collect(
+                  Collectors.toMap(
+                      Function.identity(), keycloakRestClient::getRealmRepresentation));
     }
   }
 }
