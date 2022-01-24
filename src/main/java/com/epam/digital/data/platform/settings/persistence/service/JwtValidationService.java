@@ -84,8 +84,7 @@ public class JwtValidationService {
     String issuerRealm = jwtIssuer.substring(jwtIssuer.lastIndexOf("/") + 1);
 
     if (keycloakConfigProperties.getRealms().contains(issuerRealm)) {
-      PublicKey keycloakPublicKey = allowedRealmsRepresentations.get(issuerRealm).getPublicKey();
-      return retryableIsVerifiedToken(accessToken, keycloakPublicKey);
+      return retryableIsVerifiedToken(accessToken, issuerRealm);
     } else {
       throw new JwtValidationException("Issuer realm is not valid");
     }
@@ -113,12 +112,14 @@ public class JwtValidationService {
         .orElse(true);
   }
 
-  private boolean retryableIsVerifiedToken(String accessToken, PublicKey keycloakPublicKey) {
+  private boolean retryableIsVerifiedToken(String accessToken, String issuerRealm) {
+    PublicKey keycloakPublicKey = allowedRealmsRepresentations.get(issuerRealm).getPublicKey();
     if(isVerifiedToken(accessToken, keycloakPublicKey)) {
       return true;
     }
     log.info("Update realm information and retry validate token");
     refreshAllowedRealmsRepresentations();
+    keycloakPublicKey = allowedRealmsRepresentations.get(issuerRealm).getPublicKey();
     return isVerifiedToken(accessToken, keycloakPublicKey);
   }
   
