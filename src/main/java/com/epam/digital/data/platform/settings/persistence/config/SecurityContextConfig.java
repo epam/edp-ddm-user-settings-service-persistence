@@ -16,12 +16,12 @@
 
 package com.epam.digital.data.platform.settings.persistence.config;
 
-import com.epam.digital.data.platform.settings.persistence.service.KeycloakRestClient;
+import com.epam.digital.data.platform.integration.idm.client.KeycloakAuthRestClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableFeignClients(clients = {KeycloakRestClient.class})
+@EnableFeignClients(clients = {KeycloakAuthRestClient.class})
 public class SecurityContextConfig {
 
 }

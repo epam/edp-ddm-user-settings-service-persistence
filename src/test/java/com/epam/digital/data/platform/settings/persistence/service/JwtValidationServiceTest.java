@@ -16,6 +16,7 @@
 
 package com.epam.digital.data.platform.settings.persistence.service;
 
+import com.epam.digital.data.platform.integration.idm.client.KeycloakAuthRestClient;
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.SecurityContext;
 import com.epam.digital.data.platform.model.core.kafka.Status;
@@ -57,7 +58,7 @@ class JwtValidationServiceTest {
   @MockBean
   private KeycloakConfigProperties keycloakConfigProperties;
   @MockBean
-  private KeycloakRestClient keycloakRestClient;
+  private KeycloakAuthRestClient keycloakRestClient;
   @MockBean
   private Clock clock;
 

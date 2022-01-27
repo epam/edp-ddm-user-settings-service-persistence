@@ -16,6 +16,7 @@
 
 package com.epam.digital.data.platform.settings.persistence.service;
 
+import com.epam.digital.data.platform.integration.idm.client.KeycloakAuthRestClient;
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.SecurityContext;
 import com.epam.digital.data.platform.settings.persistence.config.KeycloakConfigProperties;
@@ -50,7 +51,7 @@ public class JwtValidationService {
   private final boolean jwtValidationEnabled;
   private final KeycloakConfigProperties keycloakConfigProperties;
 
-  private final KeycloakRestClient keycloakRestClient;
+  private final KeycloakAuthRestClient keycloakRestClient;
   private final Clock clock;
 
   private Map<String, PublishedRealmRepresentation> allowedRealmsRepresentations;
@@ -58,7 +59,7 @@ public class JwtValidationService {
   public JwtValidationService(
       @Value("${data-platform.jwt.validation.enabled:false}") boolean jwtValidationEnabled,
       KeycloakConfigProperties keycloakConfigProperties,
-      KeycloakRestClient keycloakRestClient,
+      KeycloakAuthRestClient keycloakRestClient,
       Clock clock) {
     this.jwtValidationEnabled = jwtValidationEnabled;
     this.keycloakConfigProperties = keycloakConfigProperties;
@@ -122,7 +123,7 @@ public class JwtValidationService {
     keycloakPublicKey = allowedRealmsRepresentations.get(issuerRealm).getPublicKey();
     return isVerifiedToken(accessToken, keycloakPublicKey);
   }
-  
+
   private boolean isVerifiedToken(String accessToken, PublicKey publicKey) {
     try {
       TokenVerifier.create(accessToken, JsonWebToken.class).publicKey(publicKey).verify();
@@ -132,7 +133,7 @@ public class JwtValidationService {
       return false;
     }
   }
-  
+
   private void refreshAllowedRealmsRepresentations() {
     if (jwtValidationEnabled) {
       allowedRealmsRepresentations =
