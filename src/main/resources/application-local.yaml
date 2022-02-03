@@ -35,3 +35,5 @@ audit:
     bootstrap: localhost:9092
     topic: audit-events
     schema-registry-url: http://localhost:8081
+    ssl:
+      enabled: false
