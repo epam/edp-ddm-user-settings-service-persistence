@@ -55,7 +55,7 @@ public class SettingsListener implements ReadListener<SettingsReadDto, Void>,
   @Override
   @KafkaListener(
       topics = "\u0023{kafkaProperties.topics['read-settings']}",
-      groupId = "\u0023{kafkaProperties.groupId}",
+      groupId = "\u0023{kafkaProperties.consumer.groupId}",
       containerFactory = "concurrentKafkaListenerContainerFactory")
   @SendTo
   public Response<SettingsReadDto> read(Request<Void> input) {
@@ -85,7 +85,7 @@ public class SettingsListener implements ReadListener<SettingsReadDto, Void>,
   @Override
   @KafkaListener(
       topics = "\u0023{kafkaProperties.topics['update-settings']}",
-      groupId = "\u0023{kafkaProperties.groupId}",
+      groupId = "\u0023{kafkaProperties.consumer.groupId}",
       containerFactory = "concurrentKafkaListenerContainerFactory")
   @SendTo
   public Response<SettingsUpdateOutputDto> update(Request<SettingsUpdateInputDto> input) {
