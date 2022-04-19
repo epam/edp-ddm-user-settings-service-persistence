@@ -20,6 +20,7 @@ import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.Response;
 import com.epam.digital.data.platform.model.core.kafka.SecurityContext;
 import com.epam.digital.data.platform.model.core.kafka.Status;
+import com.epam.digital.data.platform.settings.model.dto.SettingsReadByKeycloakIdInputDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsReadDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsUpdateInputDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsUpdateOutputDto;
@@ -47,7 +48,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
         "port=9092"})
 class SettingsListenerIT {
 
-    private static final UUID SETTINGS_ID = UUID.fromString("321e7654-e89b-12d3-a456-426655441111");
+    private static final UUID TOKEN_SETTINGS_ID = UUID.fromString("321e7654-e89b-12d3-a456-426655441111");
+    private static final UUID SETTINGS_ID_FIND_BY_KEYCLOAK = UUID.fromString("7f18fd5f-d68e-4609-85a8-eb5745488ac2");
     private static final String DIGITAL_SIGNATURE = "digital_signature";
     private static final String DIGITAL_SIGNATURE_DERIVED = "digital_signature_derived";
     private static final String TRACE_REQUEST_ID = "1";
@@ -76,8 +78,7 @@ class SettingsListenerIT {
         SettingsUpdateOutputDto payload = update.getPayload();
         assertNotNull(payload);
         assertThat(update.getStatus()).isEqualTo(Status.SUCCESS);
-        assertThat(payload.getSettingsId()).isEqualTo(SETTINGS_ID);
-
+        assertThat(payload.getSettingsId()).isEqualTo(TOKEN_SETTINGS_ID);
     }
 
     @Test
@@ -89,7 +90,22 @@ class SettingsListenerIT {
         Response<SettingsReadDto> read = settingsListener.read(input);
         SettingsReadDto payload = read.getPayload();
         assertNotNull(payload);
-        assertThat(payload.getSettingsId()).isEqualTo(SETTINGS_ID);
+        assertThat(payload.getSettingsId()).isEqualTo(TOKEN_SETTINGS_ID);
+        assertThat(read.getStatus()).isEqualTo(Status.SUCCESS);
+    }
+
+    @Test
+    void shouldFindSettingsByKeycloakId() throws IOException {
+        Request<SettingsReadByKeycloakIdInputDto> input = new Request<>();
+        input.setPayload(new SettingsReadByKeycloakIdInputDto(
+                UUID.fromString("4cb2fb36-df5a-474d-9e82-0a9848231bd6")));
+        input.setSecurityContext(securityContext());
+        Mockito.when(traceService.getRequestId()).thenReturn(TRACE_REQUEST_ID);
+
+        Response<SettingsReadDto> read = settingsListener.readByKeycloakId(input);
+        SettingsReadDto payload = read.getPayload();
+        assertNotNull(payload);
+        assertThat(payload.getSettingsId()).isEqualTo(SETTINGS_ID_FIND_BY_KEYCLOAK);
         assertThat(read.getStatus()).isEqualTo(Status.SUCCESS);
     }
 

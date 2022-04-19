@@ -14,4 +14,11 @@ INSERT INTO settings VALUES
     'settings@gmail.com',
     '0951111111',
     false
+),
+(
+    '7f18fd5f-d68e-4609-85a8-eb5745488ac2',
+    '4cb2fb36-df5a-474d-9e82-0a9848231bd6',
+    'settings2@yahoo.com',
+    '0662222222',
+    true
 );

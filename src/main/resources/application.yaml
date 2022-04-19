@@ -66,3 +66,8 @@ data-platform:
     topics:
       read-settings: read-settings-inbound
       update-settings: update-settings-inbound
+      read-settings-by-keycloak-id: read-settings-by-keycloak-id-inbound
+    error-handler:
+      initial-interval: 1500
+      max-elapsed-time: 6000
+      multiplier: 2

@@ -17,6 +17,7 @@
 package com.epam.digital.data.platform.settings.persistence.service;
 
 import com.epam.digital.data.platform.model.core.kafka.Request;
+import com.epam.digital.data.platform.settings.model.dto.SettingsReadByKeycloakIdInputDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsReadDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsUpdateInputDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsUpdateOutputDto;
@@ -43,21 +44,12 @@ public class SettingsService {
   public SettingsReadDto findUserSettings(Request<Void> input) {
     var userClaims = jwtInfoProvider.getUserClaims(input);
     var userKeycloakId = userClaims.getSubject();
-    return settingsRepository
-        .findByKeycloakId(UUID.fromString(userKeycloakId))
-        .map(
-            settings -> {
-              var settingsReadDto = new SettingsReadDto();
-              settingsReadDto.setSettingsId(settings.getSettingsId());
-              settingsReadDto.setEmail(settings.getEmail());
-              settingsReadDto.setPhone(settings.getPhone());
-              settingsReadDto.setCommunicationAllowed(settings.isCommunicationAllowed());
-              return settingsReadDto;
-            })
-        .orElseGet(() -> {
-          log.info("Settings not found in DB, returning empty ones");
-          return new SettingsReadDto();
-        });
+    return findByKeycloakId(UUID.fromString(userKeycloakId));
+  }
+
+  public SettingsReadDto findUserSettingsByKeycloakId(
+      Request<SettingsReadByKeycloakIdInputDto> input) {
+    return findByKeycloakId(input.getPayload().getKeycloakId());
   }
 
   public SettingsUpdateOutputDto updateSettings(Request<SettingsUpdateInputDto> input) {
@@ -79,5 +71,24 @@ public class SettingsService {
     Settings savedSettings = settingsRepository.save(settings);
 
     return new SettingsUpdateOutputDto(savedSettings.getSettingsId());
+  }
+
+  private SettingsReadDto findByKeycloakId(UUID keycloakId) {
+    return settingsRepository
+        .findByKeycloakId(keycloakId)
+        .map(
+            settings -> {
+              var settingsReadDto = new SettingsReadDto();
+              settingsReadDto.setSettingsId(settings.getSettingsId());
+              settingsReadDto.setEmail(settings.getEmail());
+              settingsReadDto.setPhone(settings.getPhone());
+              settingsReadDto.setCommunicationAllowed(settings.isCommunicationAllowed());
+              return settingsReadDto;
+            })
+        .orElseGet(
+            () -> {
+              log.info("Settings not found in DB, returning empty ones");
+              return new SettingsReadDto();
+            });
   }
 }

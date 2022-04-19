@@ -6,7 +6,7 @@
 
   <groupId>com.epam.digital.data.platform</groupId>
   <artifactId>user-settings-service-persistence</artifactId>
-  <version>1.6.0</version>
+  <version>1.7.0</version>
 
   <name>user-settings-service-persistence</name>
   <description>user-settings-service-persistence</description>

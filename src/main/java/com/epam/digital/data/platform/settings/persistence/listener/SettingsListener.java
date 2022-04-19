@@ -19,14 +19,13 @@ package com.epam.digital.data.platform.settings.persistence.listener;
 import com.epam.digital.data.platform.model.core.kafka.Request;
 import com.epam.digital.data.platform.model.core.kafka.Response;
 import com.epam.digital.data.platform.model.core.kafka.Status;
+import com.epam.digital.data.platform.settings.model.dto.SettingsReadByKeycloakIdInputDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsReadDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsUpdateInputDto;
 import com.epam.digital.data.platform.settings.model.dto.SettingsUpdateOutputDto;
 import com.epam.digital.data.platform.settings.persistence.audit.AuditableListener;
 import com.epam.digital.data.platform.settings.persistence.audit.AuditableListener.Operation;
 import com.epam.digital.data.platform.settings.persistence.exception.RequestProcessingException;
-import com.epam.digital.data.platform.settings.persistence.listener.operation.ReadListener;
-import com.epam.digital.data.platform.settings.persistence.listener.operation.UpdateListener;
 import com.epam.digital.data.platform.settings.persistence.service.JwtValidationService;
 import com.epam.digital.data.platform.settings.persistence.service.SettingsService;
 import org.slf4j.Logger;
@@ -36,8 +35,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SettingsListener implements ReadListener<SettingsReadDto, Void>,
-    UpdateListener<SettingsUpdateOutputDto, SettingsUpdateInputDto> {
+public class SettingsListener {
 
   private final Logger log = LoggerFactory.getLogger(SettingsListener.class);
 
@@ -52,7 +50,6 @@ public class SettingsListener implements ReadListener<SettingsReadDto, Void>,
   }
 
   @AuditableListener(Operation.READ)
-  @Override
   @KafkaListener(
       topics = "\u0023{kafkaProperties.topics['read-settings']}",
       groupId = "\u0023{kafkaProperties.consumer.groupId}",
@@ -81,8 +78,36 @@ public class SettingsListener implements ReadListener<SettingsReadDto, Void>,
     return response;
   }
 
+  @AuditableListener(Operation.READ)
+  @KafkaListener(
+          topics = "\u0023{kafkaProperties.topics['read-settings-by-keycloak-id']}",
+          groupId = "\u0023{kafkaProperties.consumer.groupId}",
+          containerFactory = "concurrentKafkaListenerContainerFactory")
+  @SendTo
+  public Response<SettingsReadDto> readByKeycloakId(Request<SettingsReadByKeycloakIdInputDto> input) {
+    log.info("Read event received");
+
+    var response = new Response<SettingsReadDto>();
+
+    try {
+      if (!jwtValidationService.isValid(input)) {
+        response.setStatus(Status.JWT_INVALID);
+        return response;
+      }
+
+      var userSettings = settingsService.findUserSettingsByKeycloakId(input);
+      response.setPayload(userSettings);
+      response.setStatus(Status.SUCCESS);
+    } catch (RequestProcessingException e) {
+      log.error("Exception while request processing", e);
+      response.setStatus(e.getKafkaResponseStatus());
+      response.setDetails(e.getDetails());
+    }
+
+    return response;
+  }
+
   @AuditableListener(Operation.UPDATE)
-  @Override
   @KafkaListener(
       topics = "\u0023{kafkaProperties.topics['update-settings']}",
       groupId = "\u0023{kafkaProperties.consumer.groupId}",
